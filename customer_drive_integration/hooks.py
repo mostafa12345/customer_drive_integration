@@ -4,6 +4,18 @@ app_publisher = "mostafa"
 app_description = "customer_drive_integration"
 app_email = "mostafa.taha@pharaonx.com"
 app_license = "mit"
+doctype_js = {
+    "Customer": "public/js/customer.js"
+}
+
+doc_events = {
+    "Customer": {
+        "after_insert": "customer_drive_integration.customer_drive.create_customer_drive_folder"
+    }
+}
+
+after_install = "customer_drive_integration.install.after_install"
+
 
 # Apps
 # ------------------
