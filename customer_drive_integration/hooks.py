@@ -11,9 +11,11 @@ doctype_js = {
 doc_events = {
     "Customer": {
         "after_insert": "customer_drive_integration.customer_drive.create_customer_drive_folder"
+    },
+    "File": {
+        "after_insert": "customer_drive_integration.api.upload_to_customer_drive"
     }
 }
-
 after_install = "customer_drive_integration.install.after_install"
 
 
