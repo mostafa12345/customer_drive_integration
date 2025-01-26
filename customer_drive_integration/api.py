@@ -3,7 +3,7 @@ import uuid
 
 def upload_to_customer_drive(doc, method):
     """
-    Upload a file to the corresponding Drive folder for a customer.
+    Upload a file to the corresponding Drive folder for a customer, ensuring it is under Administrator's Drive.
     """
     frappe.log_error(f"File upload triggered: {doc.name}", "File Upload Debugging")
     try:
@@ -25,8 +25,17 @@ def upload_to_customer_drive(doc, method):
                 parent_drive_entity = frappe.get_doc("Drive Entity", drive_entity_id)
                 frappe.log_error(f"Parent Drive Entity: {parent_drive_entity.name}", "File Upload Debugging")
 
-                # Ensure the file is uploaded under "Mohamed Elshelawy's Drive"
-                parent_path = f"{parent_drive_entity.path}/{doc.file_name}"
+                # Fetch Administrator's Drive root folder
+                admin_drive_folder = frappe.db.get_value(
+                    "Drive Entity", 
+                    {"title": "Administrator's Drive", "is_group": 1}, 
+                    "name"
+                )
+                if not admin_drive_folder:
+                    frappe.throw("Administrator's Drive folder does not exist. Please create it manually.")
+
+                # Ensure the file is created under Administrator's Drive
+                parent_path = f"{admin_drive_folder}/{parent_drive_entity.path}/{doc.file_name}"
                 unique_name = str(uuid.uuid4())
 
                 # Create a new file entity
@@ -35,13 +44,13 @@ def upload_to_customer_drive(doc, method):
                     "title": doc.file_name,
                     "is_group": 0,
                     "is_active": 1,
-                    "parent_drive_entity": parent_drive_entity.name,
+                    "parent_drive_entity": admin_drive_folder,
                     "name": unique_name,
                     "file_kind": "File",
                     "path": parent_path,
                     "document": doc.name,
                     "mime_type": doc.content_type,
-                    "owner": "Mohamed Elshelawy"  # Ensure the owner is set correctly
+                    "owner": "Administrator"  # Ensure the owner is set to Administrator
                 })
                 new_file.insert(ignore_permissions=True)
                 frappe.db.commit()

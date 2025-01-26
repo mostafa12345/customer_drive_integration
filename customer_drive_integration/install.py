@@ -6,11 +6,11 @@ def after_install():
     """
     Customizations to be applied after the app is installed.
     """
-    # Add the 'drive_link' field to the Customer Doctype
+    # Add custom fields to the Customer Doctype
     add_custom_fields_to_customer()
 
-    # Ensure Mohamed Elshelawy's Drive exists
-    ensure_mohamed_drive_exists()
+    # Ensure Administrator's Drive exists
+    ensure_administrator_drive_exists()
 
 
 def add_custom_fields_to_customer():
@@ -39,13 +39,13 @@ def add_custom_fields_to_customer():
         }).insert()
 
 
-def ensure_mohamed_drive_exists():
+def ensure_administrator_drive_exists():
     """
-    Ensure 'Mohamed Elshelawy's Drive' exists in the system.
+    Ensure the Administrator's Drive exists in the system.
     """
-    drive_title = "Mohamed Elshelawy's Drive"
+    drive_title = "Administrator's Drive"
     if not frappe.db.exists("Drive Entity", {"title": drive_title, "is_group": 1}):
-        # Create the main drive for Mohamed Elshelawy
+        # Create the main drive for Administrator
         frappe.get_doc({
             "doctype": "Drive Entity",
             "title": drive_title,
@@ -53,9 +53,10 @@ def ensure_mohamed_drive_exists():
             "is_active": 1,
             "name": str(uuid.uuid4()),  # Set a unique name explicitly
             "file_kind": "Folder",  # Mark as folder
-            "path": drive_title
+            "path": drive_title,
+            "owner": "Administrator"  # Ensure the folder is owned by Administrator
         }).insert(ignore_permissions=True)
-        frappe.msgprint(f"Drive folder '{drive_title}' has been created.")
+        frappe.msgprint(f"Drive folder '{drive_title}' has been created under Administrator.")
     else:
         frappe.msgprint(f"Drive folder '{drive_title}' already exists.")
 
